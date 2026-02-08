@@ -1,0 +1,190 @@
+/* Базовый стиль страницы */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    scrollbar-gutter: stable both edges;
+}
+
+/* Шапка (header) */
+header {
+    background-color: #ffffff;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+}
+
+/* Боковая панель (sidebar) */
+.sidebar {
+    background-color: #343a40;
+    color: #fff;
+    height: calc(100vh - 80px);
+    position: fixed;
+    top: 80px;
+    left: 0;
+    z-index: 1;
+    width: 250px;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Адаптация sidebar для мобильных */
+@media screen and (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+    }
+    .sidebar.opened {
+        transform: translateX(0);
+    }
+    main {
+        margin-left: 0 !important;
+    }
+}
+
+/* Ссылки в sidebar */
+.sidebar a {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s;
+}
+
+.sidebar a.active,
+.sidebar a:hover {
+    background-color: #495057;
+}
+
+/* Основной контент (main) */
+main {
+    margin-left: 250px;
+    padding: 20px;
+    flex-grow: 1;
+}
+
+@media screen and (max-width: 768px) {
+    main {
+        margin-left: 0;
+    }
+}
+
+/* Навигация (nav) */
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+/* Подвал (footer) */
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #343a40;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+/* Изображение обложки курса */
+img.course-cover {
+    object-fit: cover;
+    width: 100%;
+    height: auto;
+    max-height: 150px;
+}
+
+/* Отступы для секций */
+section#addCourseForm,
+section#coursesList,
+section#studentEnrollmentForm,
+section#studentsList,
+section#addLessonForm,
+section#lessonsList {
+    margin-bottom: 2rem;
+}
+
+/* Стили для полей ввода даты */
+form input[type="date"]::-webkit-date-and-time-value {
+    color: black;
+}
+
+/* Заголовки */
+h1,
+h2 {
+    margin-bottom: 1.5rem;
+}
+
+/* Пагинация */
+.pagination {
+    justify-content: center;
+}
+
+/* Адаптация таблицы для мобильных */
+@media screen and (max-width: 768px) {
+    .table td,
+    .table th {
+        white-space: nowrap;
+        word-break: break-word;
+    }
+}
+
+/* Кнопка переключения sidebar (мобильная версия) */
+button.toggle-sidebar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+    button.toggle-sidebar {
+        display: block;
+    }
+}
+
+/* Общие стили для кнопок действий в таблицах */
+.edit-btn {
+    margin-right: 5px;
+}
+
+.delete-btn {
+    margin-right: 5px;
+}
+
+/* Стили для модальных окон */
+.modal-content {
+    border-radius: 8px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+}
+
+/* Дополнительные отступы для форм внутри модальных окон */
+.modal-body .mb-3 {
+    margin-bottom: 1rem;
+}
+
+/* Стили для кнопок в модальных окнах */
+.btn-close {
+    cursor: pointer;
+}
+
+/* Фиксированная высота для длинных текстов в ячейках таблицы (при необходимости) */
+td.truncate {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

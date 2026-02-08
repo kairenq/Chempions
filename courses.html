@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учебная платформа</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css"> <!-- Локальная копия Bootstrap -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            scrollbar-gutter: stable both edges;
+        }
+        header {
+            background-color: #ffffff;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2;
+        }
+        .sidebar {
+            background-color: #343a40;
+            color: #fff;
+            height: calc(100vh - 80px); /* Высота минус высоту шапки */
+            position: fixed;
+            top: 80px;       
+            left: 0;
+            z-index: 1;
+            width: 250px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        @media screen and (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%); /* Скрываем боковую панель */
+                transition: transform 0.3s ease-in-out;
+            }
+            .sidebar.opened {
+                transform: translateX(0); /* Показываем боковую панель */
+            }
+            main {
+                margin-left: 0 !important; /* Убираем сдвиг на мобильных устройствах */
+            }
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+        .sidebar a.active, .sidebar a:hover {
+            background-color: #495057;
+        }
+        main {
+            margin-left: 250px;     
+            
+            padding: 20px;
+            flex-grow: 1;
+        }
+        @media screen and (max-width: 768px) {
+            main {
+                margin-left: 0; /* Отключаем отступ слева на мобильных устройствах */
+            }
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #343a40;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        img.course-cover { 
+            object-fit: cover; 
+            width: 100%;
+            height: auto;
+            max-height: 150px;
+        }
+        section#addCourseForm,
+        section#coursesList {
+            margin-bottom: 2rem;
+        }
+        form input[type="date"]::-webkit-date-and-time-value {
+            color: black; /* Цвет текста в поле ввода даты */
+        }
+        h1,h2 {
+            margin-bottom: 1.5rem;
+        }
+        .pagination {
+            justify-content: center;
+        }
+        @media screen and (max-width: 768px) {
+            .table td, .table th {
+                white-space: nowrap;
+                word-break: break-word;
+            }
+        }
+        button.toggle-sidebar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 3;
+            display: none;
+        }
+        @media screen and (max-width: 768px) {
+            button.toggle-sidebar {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button type="button" class="toggle-sidebar btn btn-primary" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <header>
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1>Административная панель</h1>
+            <div class="btn-group dropstart"> <!-- Используем нативные средства Bootstrap -->
+                <button type="button" class="btn btn-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Логин
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">Профиль</a></li>
+                    <li><a class="dropdown-item" href="#">Выход</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <nav>
+            <ul>
+                <li><a href="courses.html" class="active">Курсы</a></li>
+                <li><a href="records.html">Студенты</a></li>
+                <li><a href="lessons.html">Уроки</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <main>
+        <h1>Управление курсами</h1>
+
+        <!-- Форма добавления нового курса -->
+        <section id="addCourseForm">
+            <h2>Создать новый курс</h2>
+            <form enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="courseName" class="form-label">Название курса *</label>
+                    <input type="text" class="form-control" id="courseName" name="name" maxlength="30"/>
+                </div>
+                <div class="mb-3">
+                    <label for="courseDescription" class="form-label">Описание курса</label>
+                    <textarea class="form-control" id="courseDescription" name="description" rows="3" maxlength="100"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="courseDuration" class="form-label">Продолжительность (часов) *</label>
+                    <input type="number" class="form-control" id="courseDuration" name="duration"/>
+                </div>
+                <div class="mb-3">
+                    <label for="coursePrice" class="form-label">Цена*</label>
+                    <input type="number" step="0.01" class="form-control" id="coursePrice" name="price"/>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="startDate" class="form-label">Дата начала *</label>
+                        <input type="date" class="form-control" id="startDate" name="start_date"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="endDate" class="form-label">Дата окончания *</label>
+                        <input type="date" class="form-control" id="endDate" name="end_date"/>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="courseCover" class="form-label">Обложка курса *</label>
+                    <input type="file" accept="image/jpeg" class="form-control" id="courseCover" name="cover"/>
+                </div>
+                <button type="submit" class="btn btn-primary">Создать курс</button>
+            </form>
+        </section>
+
+        <!-- Таблица существующих курсов -->
+        <hr/>
+        <section id="coursesList">
+            <h2>Список курсов</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">№</th>
+                        <th scope="col">Изображение</th>
+                        <th scope="col">Название</th>
+                        <th scope="col">Описание</th>
+                        <th scope="col">Длит.</th>
+                        <th scope="col">Цена</th>
+                        <th scope="col">Начало</th>
+                        <th scope="col">Окончание</th>
+                        <th scope="col">Уроки</th>
+                        <th scope="col">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Пример строки с одним курсом -->
+                    <tr>
+                        <td>1</td>
+                        <td><img src="img/img1.png" alt="Обложка курса" class="course-cover"/></td>
+                        <td>Основы программирования</td>
+                        <td>Введение в основы программирования на Python</td>
+                        <td>5 часов</td>
+                        <td>7200.00</td>
+                        <td>01-09-2025</td>
+                        <td>15-09-2025</td>
+                        <td>
+                            <a href="" class="btn btn-info btn-sm view-lessons-btn">Просмотреть уроки</a>
+                        </td>
+                        <td>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#editModal" class="btn btn-warning btn-sm edit-btn" data-id="1"> Изменить</a>
+                            <a href="#" class="btn btn-danger btn-sm delete-btn" onclick="return confirm('Вы уверены, что хотите удалить этот курс?')">Удалить</a>
+                        </td>
+                    </tr>
+                    <!-- Другие курсы будут загружены динамически -->
+                </tbody>
+            </table>
+            <!-- Навигация страниц -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item"><a class="page-link" href="#">Предыдущая</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Следующая</a></li>
+                </ul>
+            </nav>
+        </section>
+
+        <!-- Модальное окно редактирования курса -->
+       <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-hidden="true">
+   <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h5 class="modal-title">Редактировать курс</h5>
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Закрыть">
+            </button>
+         </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                    <label for="courseName" class="form-label">Название курса *</label>
+                    <input type="text" class="form-control" id="courseName" name="name" maxlength="30"/>
+                </div>
+                <div class="mb-3">
+                    <label for="courseDescription" class="form-label">Описание курса</label>
+                    <textarea class="form-control" id="courseDescription" name="description" rows="3" maxlength="100"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="courseDuration" class="form-label">Продолжительность (часов) *</label>
+                    <input type="number" class="form-control" id="courseDuration" name="duration" min="1" max="10"/>
+                </div>
+                <div class="mb-3">
+                    <label for="coursePrice" class="form-label">Цена *</label>
+                    <input type="number" step="0.01" class="form-control" id="coursePrice" name="price" />
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="startDate" class="form-label">Дата начала *</label>
+                        <input type="date" class="form-control" id="startDate" name="start_date"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="endDate" class="form-label">Дата окончания *</label>
+                        <input type="date" class="form-control" id="endDate" name="end_date"/>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="courseCover" class="form-label">Обложка курса *</label>
+                    <input type="file" accept="image/jpeg" class="form-control" id="courseCover" name="cover"/>
+                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="button" class="btn btn-primary">Сохранить изменения</button>
+                    </div>
+                </div>
+            </div>
+        </div>    
+    </main>
+
+    <footer>
+        © 2025 Учебная платформа
+    </footer>
+
+    <!-- Только локальная версия Bootstrap без Popper -->
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            if (!sidebar.classList.contains('opened')) {
+                sidebar.classList.add('opened');
+            } else {
+                sidebar.classList.remove('opened');
+            }
+        }
+    </script>
+</body>
+</html>

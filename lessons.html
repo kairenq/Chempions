@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учебная платформа</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css"> <!-- Локальная копия Bootstrap -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            scrollbar-gutter: stable both edges;
+        }
+        header {
+            background-color: #ffffff;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2;
+        }
+        .sidebar {
+            background-color: #343a40;
+            color: #fff;
+            height: calc(100vh - 80px);
+            position: fixed;
+            top: 80px;       
+            left: 0;
+            z-index: 1;
+            width: 250px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        @media screen and (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+            .sidebar.opened {
+                transform: translateX(0);
+            }
+            main {
+                margin-left: 0 !important;
+            }
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+        .sidebar a.active, .sidebar a:hover {
+            background-color: #495057;
+        }
+        main {
+            margin-left: 250px;     
+            padding: 20px;
+            flex-grow: 1;
+        }
+        @media screen and (max-width: 768px) {
+            main {
+                margin-left: 0;
+            }
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #343a40;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        img.course-cover {
+            object-fit: cover;
+            width: 100%;
+            height: auto;
+            max-height: 150px;
+        }
+        section#addLessonForm,
+        section#lessonsList {
+            margin-bottom: 2rem;
+        }
+        form input[type="date"]::-webkit-date-and-time-value {
+            color: black;
+        }
+        h1, h2 {
+            margin-bottom: 1.5rem;
+        }
+        .pagination {
+            justify-content: center;
+        }
+        @media screen and (max-width: 768px) {
+            .table td, .table th {
+                white-space: nowrap;
+                word-break: break-word;
+            }
+        }
+        button.toggle-sidebar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 3;
+            display: none;
+        }
+        @media screen and (max-width: 768px) {
+            button.toggle-sidebar {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button type="button" class="toggle-sidebar btn btn-primary" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <header>
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1>Административная панель</h1>
+            <div class="btn-group dropstart">
+                <button type="button" class="btn btn-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Логин
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">Профиль</a></li>
+                    <li><a class="dropdown-item" href="#">Выход</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <nav>
+            <ul>
+                <li><a href="courses.html">Курсы</a></li>
+                <li><a href="records.html">Студенты</a></li>
+                <li><a href="lessons.html" class="active">Уроки</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <main>
+        <h1>Редактирование уроков курса</h1>
+
+        <!-- Форма добавления нового урока -->
+        <section id="addLessonForm">
+            <h2>Добавление нового урока</h2>
+            <form id="addLesson" enctype="multipart/form-data" onsubmit="event.preventDefault(); addLesson()">
+                <div class="mb-3">
+                    <label for="lessonTitle" class="form-label">Заголовок урока *</label>
+                    <input type="text" class="form-control" id="lessonTitle" name="title" required />
+                </div>
+                <div class="mb-3">
+                    <label for="lessonText" class="form-label">Содержание урока</label>
+                    <textarea class="form-control" id="lessonText" name="content" rows="5"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="videoLink" class="form-label">Ссылка на видео (SuperTube)</label>
+                    <input type="url" class="form-control" id="videoLink" name="video_link" placeholder="https://supertube.com/video/..." />
+                </div>
+                <div class="mb-3">
+                    <label for="lessonDuration" class="form-label">Длительность урока (часы) *</label>
+                    <input type="number" class="form-control" id="lessonDuration" name="duration" min="1" max="4" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Добавить урок</button>
+            </form>
+        </section>
+
+        <!-- Список существующих уроков -->
+        <hr/>
+		<section id="lessonsList">
+    <h2>Список уроков</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Курс</th>
+                <th scope="col">Заголовок</th>
+                <th scope="col">Видео</th>
+                <th scope="col">Длительность</th>
+                <th scope="col">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Пример строки с одним уроком -->
+            <tr>
+                <td>1</td>
+                <td>Python-разработка</td>
+                <td>Урок №1: Основы Python</td>
+                <td><a href="https://supertube.com/watch?v=id_1" target="_blank">Посмотреть видео</a></td>
+                <td>2 ч</td>
+                <td>
+                    <a href="#" 
+                       data-bs-toggle="modal"
+                       data-bs-target="#editLessonModal"
+                       class="btn btn-warning btn-sm edit-btn"
+                       data-id="1">
+                        Изменить
+                    </a>
+                    <a href="#"
+                       class="btn btn-danger btn-sm delete-btn"
+                       onclick="return confirm('Вы уверены, что хотите удалить этот урок?')">
+                        Удалить
+                    </a>
+                </td>
+            </tr>
+            <!-- Другие уроки будут загружены динамически -->
+        </tbody>
+    </table>
+</section>
+
+<!-- Модальное окно редактирования урока -->
+<div class="modal fade" id="editLessonModal" tabindex="-1" aria-labelledby="editLessonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editLessonModalLabel">Редактировать урок</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editLessonForm">
+                    <div class="mb-3">
+                        <label for="editLessonTitle" class="form-label">Заголовок урока *</label>
+                        <input type="text" class="form-control" id="editLessonTitle" name="title" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="editLessonText" class="form-label">Содержание урока</label>
+                        <textarea class="form-control" id="editLessonText" name="content" rows="5"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editVideoLink" class="form-label">Ссылка на видео (SuperTube)</label>
+                        <input type="url" class="form-control" id="editVideoLink" name="video_link" placeholder="https://supertube.com/video/..." />
+                    </div>
+                    <div class="mb-3">
+                        <label for="editLessonDuration" class="form-label">Длительность урока (часы) *</label>
+                        <input type="number" class="form-control" id="editLessonDuration" name="duration" min="1" max="4" required />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="saveEditedLesson()">Сохранить изменения</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</main>
+
+<footer>
+    © 2025 Учебная платформа
+</footer>
+
+<!-- Подключение Bootstrap (локальная копия) -->
+<script src="js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        if (!sidebar.classList.contains('opened')) {
+            sidebar.classList.add('opened');
+        } else {
+            sidebar.classList.remove('opened');
+        }
+    }
+
+    // Пример функции для добавления урока (можно доработать по логике приложения)
+    function addLesson() {
+        console.log("Добавлен новый урок");
+        // Логика отправки формы
+    }
+
+    // Функция сохранения изменений урока
+    function saveEditedLesson() {
+        console.log("Сохранены изменения урока");
+        // Логика сохранения изменений
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editLessonModal'));
+        modal.hide();
+    }
+</script>
+</body>
+</html>
